@@ -1,0 +1,45 @@
+# Binaries
+*.exe
+*.out
+*.app
+*.bin
+
+# Build artifacts
+/build/
+/dist/
+*.o
+*.a
+*.so
+
+# Go-specific files
+/bin/
+/pkg/
+*.test
+*.coverprofile
+
+# Dependency management
+vendor/
+go.sum
+go.work
+go.work.sum
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.DS_Store
+*.vscode/
+.idea/
+*.iml
+
+# Coverage and debugging
+cover.out
+debug/
+trace.out
+pprof/
+
+# Neovim swap/backup files
+*.un~
+
