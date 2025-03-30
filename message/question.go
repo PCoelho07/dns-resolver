@@ -13,8 +13,8 @@ type QuestionType struct {
     QClass uint16
 }
 
-func NewQuestion(name string, qType, qClass uint16) QuestionType {
-    q := QuestionType{
+func NewQuestion(name string, qType, qClass uint16) *QuestionType {
+    q := &QuestionType{
         Name: name,
         QType: qType,
         QClass: qClass,

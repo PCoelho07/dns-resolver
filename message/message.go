@@ -6,42 +6,48 @@ import (
 )
 
 type DnsMessage struct {
-	Header HeaderType
-    Question QuestionType
-    Answer ResourceRecord
+	Header    HeaderType
+	Questions []QuestionType
+	Answers   []ResourceRecord
 }
 
-func NewMessage(query string, queryType uint16) *DnsMessage {
-    question := NewQuestion(query, queryType, ClassIN) 
-    headerFlag := HeaderFlag{
-    	QR:     false,
-    	OpCode: 0,
-    	AA:     false,
-    	TC:     false,
-    	RD:     false,
-    	RA:     false,
-    	Z:      0,
-    	RCode:  0,
-    }
-    header := NewHeader(22, headerFlag, 1, 0, 0, 0)
-    answer := ResourceRecord{} 
+func NewMessage(questions []QuestionType) *DnsMessage {
+	headerFlag := HeaderFlag{
+		QR:     true,
+		OpCode: 0,
+		AA:     false,
+		TC:     false,
+		RD:     false,
+		RA:     false,
+		Z:      0,
+		RCode:  0,
+	}
+	header := NewHeader(22, headerFlag, 1, 0, 0, 0)
+	answers := []ResourceRecord{}
 
-    return &DnsMessage{
-        Question: question,
-        Header: header,
-        Answer: answer,
-    }
+	return &DnsMessage{
+		Header:    header,
+		Questions: questions,
+		Answers:   answers,
+	}
 }
 
 func (dnsMessage *DnsMessage) ToBytes() []byte {
-    buffer := new(bytes.Buffer)
+	buffer := new(bytes.Buffer)
 
-    binary.Write(buffer, binary.BigEndian, dnsMessage.Header)
-    binary.Write(buffer, binary.BigEndian, dnsMessage.Question)
+	binary.Write(buffer, binary.BigEndian, dnsMessage.Header.ToBytes())
+    
+    for _, q := range dnsMessage.Questions  {
+        binary.Write(buffer, binary.BigEndian, q.ToBytes())
+    }
 
-    return buffer.Bytes()
+    for _, a := range dnsMessage.Answers  {
+        binary.Write(buffer, binary.BigEndian, a.ToBytes())
+    }
+
+	return buffer.Bytes()
 }
 
 func (dnsMessage *DnsMessage) ReadFromBytes(message []byte) ([]byte, error) {
-   return []byte("response"), nil
+	return []byte("response"), nil
 }

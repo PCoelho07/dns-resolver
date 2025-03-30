@@ -7,6 +7,7 @@ import (
 
 func main() {
     fmt.Println("Hello dns-resolver!")
-    dnsMessage := message.NewMessage("google.com", message.TypeA)
+    question := message.NewQuestion("google.com", message.TypeA, message.ClassIN)
+    dnsMessage := message.NewMessage([]message.QuestionType{*question})
     fmt.Printf("raw dns message: %v \ndns message in bytes: %v", dnsMessage, dnsMessage.ToBytes())
 }
