@@ -6,35 +6,52 @@ import (
 )
 
 type DnsMessage struct {
-	Header    HeaderType
-	Questions []QuestionType
-	Answers   []ResourceRecord
+	Header        HeaderType
+	Questions     []QuestionType
+	Answers       []ResourceRecord
+	AuthoritysRRs []ResourceRecord
+	AdditionalRRs []ResourceRecord
 }
 
-func NewMessage(questions []QuestionType) *DnsMessage {
-	headerFlag := HeaderFlag{
-		QR:     true,
-		OpCode: 1,
-		AA:     false,
-		TC:     false,
-		RD:     false,
-		RA:     true,
-		Z:      3,
-		RCode:  10,
-	}
-	header := NewHeader(10, headerFlag, 1, 0, 1, 0)
-	answers := []ResourceRecord{}
+func NewMessage(query string) *DnsMessage {
+	headerFlag := NewHeaderFlag(
+		false,
+		0,
+		false,
+		false,
+		true,
+		false,
+		0,
+		0,
+	)
+
+	questions := NewQuestion(query, TypeA, ClassIN)
+	header := NewHeader(10, headerFlag, 1, 0, 0, 0)
+
+	answers := make([]ResourceRecord, 0)
+	authorityRR := make([]ResourceRecord, 0)
+	additionalRR := make([]ResourceRecord, 0)
 
 	return &DnsMessage{
 		Header:    header,
-		Questions: questions,
+		Questions: []QuestionType{*questions},
 		Answers:   answers,
+        AuthoritysRRs: authorityRR,
+        AdditionalRRs: additionalRR,
 	}
 }
 
-func (dnsMessage *DnsMessage) DecodeFromBytes(data []byte) (*HeaderType, error) {
-    headerResult, _ := dnsMessage.Header.DecodeFromBytes(data)
-    return headerResult, nil
+func DnsMessageFromBytes(data []byte) (*DnsMessage, error) {
+    headerResult := HeaderFromBytes(data[0:12])
+    answer := ResourceRecordFromBytes(data)
+	return &DnsMessage{
+        Header: headerResult,
+        Answers: []ResourceRecord{answer},
+    }, nil
+}
+
+func (dnsMessage *DnsMessage) HasError() bool {
+    return dnsMessage.Header.Flags.RCode != 0
 }
 
 func (dnsMessage *DnsMessage) ToBytes() []byte {
@@ -48,6 +65,14 @@ func (dnsMessage *DnsMessage) ToBytes() []byte {
 
 	for _, a := range dnsMessage.Answers {
 		binary.Write(buffer, binary.BigEndian, a.ToBytes())
+	}
+
+	for _, arr := range dnsMessage.AuthoritysRRs {
+		binary.Write(buffer, binary.BigEndian, arr.ToBytes())
+	}
+
+	for _, addRR := range dnsMessage.AdditionalRRs {
+		binary.Write(buffer, binary.BigEndian, addRR.ToBytes())
 	}
 
 	return buffer.Bytes()

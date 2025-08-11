@@ -2,7 +2,7 @@ package message
 
 // Root DNS server
 const (
-	RootDNS     = "198.41.0.4"
+	RootDNS     = "177.37.220.18"
 	RootDNSPort = 53
 )
 

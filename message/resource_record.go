@@ -17,9 +17,9 @@ type ResourceRecord struct {
 	RDataParsed string
 }
 
-func NewResourceRecord(name string, rType uint16, class uint16, ttl uint32, rdLength uint16, rData []byte) *ResourceRecord {
+func NewResourceRecord(name string, rType uint16, class uint16, ttl uint32, rdLength uint16, rData []byte) ResourceRecord {
 	parsedRData, _ := parseRData(rType, rData)
-	return &ResourceRecord{
+	return ResourceRecord{
 		Name:        name,
 		Type:        rType,
 		Class:       class,
@@ -57,5 +57,8 @@ func (rr *ResourceRecord) ToBytes() []byte {
 	binary.Write(buffer, binary.BigEndian, rr.TTL)
 
 	return buffer.Bytes()
-
 }
+
+func ResourceRecordFromBytes(data []byte) ResourceRecord {
+    return ResourceRecord{}
+} 
