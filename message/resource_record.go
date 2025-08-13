@@ -60,5 +60,16 @@ func (rr *ResourceRecord) ToBytes() []byte {
 }
 
 func ResourceRecordFromBytes(data []byte) ResourceRecord {
-    return ResourceRecord{}
-} 
+    name := "resource"
+    if int(data[0]) >= 192 {
+        name = "the same"
+    }
+
+	return ResourceRecord{
+        Name: name,
+    }
+}
+
+func decodeName(data []byte) (name string) {
+    return ""
+}

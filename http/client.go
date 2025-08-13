@@ -8,12 +8,10 @@ import (
 	"time"
 )
 
-const DomainServerURI = ""
-
 func DoRequest(data []byte) ([]byte, error) {
     addr := fmt.Sprintf("%s:%d", message.RootDNS, message.RootDNSPort)
 
-    fmt.Println("\nconnecting to server ", addr)
+    fmt.Printf("\nconnecting to server %s...", addr)
     c, err := net.Dial("udp", addr)
 
     if err != nil { 

@@ -46,3 +46,7 @@ func (q *QuestionType) ToBytes() []byte {
 
     return buffer.Bytes()
 }
+
+func QuestionFromBytes(data []byte) *QuestionType {
+    return nil
+}
