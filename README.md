@@ -12,7 +12,7 @@ GoDNS is a lightweight DNS resolver written in Go. It currently supports resolvi
 ```sh
 git clone https://github.com/PCoelho07/dns-resolver  
 cd dns-resolver  
-go build -o godns  
+go build -o godns ./cmd/main.go
 ```
 
 ## ▶️  Usage
