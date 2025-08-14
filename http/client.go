@@ -11,7 +11,6 @@ import (
 func DoRequest(data []byte) ([]byte, error) {
     addr := fmt.Sprintf("%s:%d", message.RootDNS, message.RootDNSPort)
 
-    fmt.Printf("connecting to server %s...", addr)
     c, err := net.Dial("udp", addr)
 
     if err != nil { 

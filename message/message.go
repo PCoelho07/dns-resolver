@@ -3,7 +3,6 @@ package message
 import (
 	"bytes"
 	"encoding/binary"
-	"log"
 )
 
 type DnsMessage struct {
@@ -46,9 +45,6 @@ func (dnsMessage *DnsMessage) DnsMessageFromBytes(data []byte) (*DnsMessage, err
 	headerResult := HeaderFromBytes(data[0:12])
 
 	rrOffset := len(dnsMessage.Questions[0].ToBytes()) + 12
-    //
-    // fmt.Println("questions bytes length ", rrOffset)
-    // fmt.Println("data rrOffset value", data[rrOffset:])
 
     answer := ResourceRecord{}
     rr := data[rrOffset:] 
@@ -59,9 +55,10 @@ func (dnsMessage *DnsMessage) DnsMessageFromBytes(data []byte) (*DnsMessage, err
         c := binary.BigEndian.Uint16(rr[4:6])
         ttl := binary.BigEndian.Uint32(rr[6:10])
         rdLen := binary.BigEndian.Uint16(rr[10:12])
+
         rData, err := parseRData(t, rr[12:], data)
         if err != nil {
-            log.Fatalf("parse R data fails: %v", err)
+            return nil, err
         }
 
         answer = ResourceRecord{
@@ -107,8 +104,4 @@ func (dnsMessage *DnsMessage) ToBytes() []byte {
 	}
 
 	return buffer.Bytes()
-}
-
-func (dnsMessage *DnsMessage) ReadFromBytes(message []byte) ([]byte, error) {
-	return []byte("response"), nil
 }

@@ -3,6 +3,7 @@ package message
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -46,13 +47,17 @@ func parseRData(rType uint16, rData []byte, fullData []byte) (string, error) {
 func parseCNAME(rData []byte, fullData []byte) (string, error) {
     if rData[0] >= 192 {
         offset := rData[1]
-        return decodeName(fullData[offset:]), nil
+        return decodeName(fullData[offset:])
     }
 
-    return decodeName(rData), nil
+    return decodeName(rData)
 }
 
-func decodeName(data []byte) string { 
+func decodeName(data []byte) (string, error) { 
+    if len(data) <= 0 {
+        return "", errors.New("resource record decode name: name segment is empty.")
+    }
+
     result := []string{}
 
     i := 0
@@ -73,7 +78,7 @@ func decodeName(data []byte) string {
         i += sLength + 1
     }
 
-    return strings.Join(result, ".")
+    return strings.Join(result, "."), nil
 }
 
 func parseA(rData []byte) (string, error) {

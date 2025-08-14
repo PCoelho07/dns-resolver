@@ -1,25 +1,18 @@
-package main
+package process
 
 import (
 	"dns-resolver/http"
 	"dns-resolver/message"
 	"fmt"
 	"log"
-	"os"
-	"time"
 )
 
-func main() {
-    start := time.Now()
-
-    if len(os.Args[1]) == 0 {
-        log.Fatal("you must provide a url")
-    }
-
-    query := os.Args[1]
-
-    for true {
+func Process(query string) (name string, data string) {
+    for {
         dnsMessage := message.NewMessage(query)
+
+        fmt.Printf("Querying %s for %s\n\n", message.RootDNS, query)
+
         plainResult, err := http.DoRequest(dnsMessage.ToBytes())
         if err != nil {
             log.Fatalf("error: %s", err)
@@ -40,12 +33,10 @@ func main() {
             continue
         }
 
-        fmt.Println("\n**********************************")
-        fmt.Printf("Name: %s\n", answer.Name)
-        fmt.Printf("Address: %s\n", answer.RDataParsed)
-        fmt.Println("**********************************")
+        name = answer.Name
+        data = answer.RDataParsed
         break
     }
 
-    fmt.Println("\nexecution time: ", time.Since(start))
+    return name, data
 }
