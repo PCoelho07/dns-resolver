@@ -3,7 +3,6 @@ package message
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"log"
 )
 
@@ -45,20 +44,22 @@ func NewMessage(query string) *DnsMessage {
 
 func (dnsMessage *DnsMessage) DnsMessageFromBytes(data []byte) (*DnsMessage, error) {
 	headerResult := HeaderFromBytes(data[0:12])
-	rrOffset := len(dnsMessage.Questions[0].ToBytes()) + 12
 
-    fmt.Println("questions bytes length ", rrOffset)
-    fmt.Println("data rrOffset value", data[rrOffset:])
+	rrOffset := len(dnsMessage.Questions[0].ToBytes()) + 12
+    //
+    // fmt.Println("questions bytes length ", rrOffset)
+    // fmt.Println("data rrOffset value", data[rrOffset:])
 
     answer := ResourceRecord{}
     rr := data[rrOffset:] 
+
     if rr[0] >= 192 { 
         n := dnsMessage.Questions[0].Name
         t := binary.BigEndian.Uint16(rr[2:4])
         c := binary.BigEndian.Uint16(rr[4:6])
         ttl := binary.BigEndian.Uint32(rr[6:10])
         rdLen := binary.BigEndian.Uint16(rr[10:12])
-        rData, err := parseRData(t, rr[12:])
+        rData, err := parseRData(t, rr[12:], data)
         if err != nil {
             log.Fatalf("parse R data fails: %v", err)
         }

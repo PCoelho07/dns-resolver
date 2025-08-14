@@ -5,39 +5,47 @@ import (
 	"dns-resolver/message"
 	"fmt"
 	"log"
+	"os"
 	"time"
 )
 
 func main() {
     start := time.Now()
 
-    dnsMessage := message.NewMessage("google.com")
-    fmt.Printf("raw dns message: %+v", dnsMessage)
-
-    dnsMessageParsed := dnsMessage.ToBytes()
-    fmt.Println("\ndns message in bytes ", dnsMessageParsed)
-
-    plainResult, err := http.DoRequest(dnsMessageParsed)
-    if err != nil {
-        log.Fatalf("error: %s", err)
-        return
+    if len(os.Args[1]) == 0 {
+        log.Fatal("you must provide a url")
     }
 
-    fmt.Printf("\nresponse from server: %+v \n", plainResult)
-    result, _ := dnsMessage.DnsMessageFromBytes(plainResult)
+    query := os.Args[1]
 
-    if result.HasError() {
-        errorMap := []string{"no error", "Format Error", "Server Failure", "Name Error", "Not Implemented", "Refused"}
-        fmt.Printf("\n error code: %s\n", errorMap[result.Header.Flags.RCode])
+    for true {
+        dnsMessage := message.NewMessage(query)
+        plainResult, err := http.DoRequest(dnsMessage.ToBytes())
+        if err != nil {
+            log.Fatalf("error: %s", err)
+            return
+        }
+
+        result, _ := dnsMessage.DnsMessageFromBytes(plainResult)
+
+        if result.HasError() {
+            errorMap := []string{"no error", "Format Error", "Server Failure", "Name Error", "Not Implemented", "Refused"}
+            fmt.Printf("\n error code: %s\n", errorMap[result.Header.Flags.RCode])
+            break
+        }
+
+        answer := result.Answers[0]
+        if answer.Type == message.TypeCNAME { 
+            query = answer.RDataParsed
+            continue
+        }
+
+        fmt.Println("\n**********************************")
+        fmt.Printf("Name: %s\n", answer.Name)
+        fmt.Printf("Address: %s\n", answer.RDataParsed)
+        fmt.Println("**********************************")
+        break
     }
-
-    fmt.Printf("\ndecoded dns message: %+v \n\n", result)
-
-    answer := result.Answers[0]
-    fmt.Println("**********************************")
-    fmt.Printf("Name: %s\n", answer.Name)
-    fmt.Printf("Address: %s\n", answer.RDataParsed)
-    fmt.Println("**********************************")
 
     fmt.Println("\nexecution time: ", time.Since(start))
 }
