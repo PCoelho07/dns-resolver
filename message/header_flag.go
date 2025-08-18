@@ -2,7 +2,6 @@ package message
 
 import "encoding/binary"
 
-
 type HeaderFlag struct {
 	QR     bool
 	OpCode uint8
@@ -15,7 +14,7 @@ type HeaderFlag struct {
 }
 
 func NewHeaderFlag(qr bool, opCode uint8, aa, tc, rd, ra bool, z, rCode uint8) HeaderFlag {
-    return HeaderFlag{
+	return HeaderFlag{
 		QR:     qr,
 		OpCode: opCode,
 		AA:     aa,
@@ -24,7 +23,7 @@ func NewHeaderFlag(qr bool, opCode uint8, aa, tc, rd, ra bool, z, rCode uint8) H
 		RA:     ra,
 		Z:      z,
 		RCode:  rCode,
-    }
+	}
 }
 
 func (hFlag HeaderFlag) ToBytes() uint16 {
@@ -56,5 +55,5 @@ func HeaderFlagFromBytes(data []byte) HeaderFlag {
 }
 
 func extractBits(value uint16, offset, length uint8) uint16 {
-    return uint16(value>>offset) & ((1 << length) - 1)
+	return uint16(value>>offset) & ((1 << length) - 1)
 }
